@@ -9,7 +9,15 @@ interface UserProfileProps {
 
 const UserProfile: React.FC<UserProfileProps> = ({ user, onLogout, onClose }) => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [activeModal, setActiveModal] = useState<string | null>(null);
+  const [activeView, setActiveView] = useState<'main' | 'edit-profile' | 'settings' | 'courses' | 'achievements' | 'notifications' | 'privacy' | 'help'>('main');
+  const [isLoading, setIsLoading] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: user.name || '',
+    email: user.email || '',
+    bio: 'Passionate student learning to code with AI assistance!',
+    location: 'United States',
+    website: ''
+  });
 
   const handleLogout = () => {
     setIsLoggingOut(true);
@@ -20,35 +28,30 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onLogout, onClose }) =>
     }, 1000);
   };
 
-  const handleMenuClick = (action: string) => {
-    setActiveModal(action);
-    // Simulate navigation or modal opening
+  const handleViewChange = (view: typeof activeView) => {
+    setIsLoading(true);
     setTimeout(() => {
-      switch (action) {
-        case 'edit-profile':
-          alert('Opening profile editor...');
-          break;
-        case 'settings':
-          alert('Opening settings panel...');
-          break;
-        case 'my-courses':
-          alert('Navigating to your courses...');
-          break;
-        case 'achievements':
-          alert('Opening achievements gallery...');
-          break;
-        case 'notifications':
-          alert('Opening notification settings...');
-          break;
-        case 'privacy':
-          alert('Opening privacy settings...');
-          break;
-        case 'help':
-          alert('Opening help center...');
-          break;
-      }
-      setActiveModal(null);
+      setActiveView(view);
+      setIsLoading(false);
+    }, 300);
+  };
+
+  const handleSaveProfile = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      // Update user data (in real app, this would be an API call)
+      localStorage.setItem('codecraft_user', JSON.stringify({
+        ...user,
+        name: editForm.name,
+        email: editForm.email
+      }));
+      setActiveView('main');
+      setIsLoading(false);
     }, 1000);
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setEditForm(prev => ({ ...prev, [field]: value }));
   };
 
   const stats = [
@@ -69,6 +72,266 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onLogout, onClose }) =>
     { name: 'React Adventures', progress: 45, icon: '⚛️' },
     { name: 'CSS Magic', progress: 90, icon: '🎨' }
   ];
+
+  const renderEditProfile = () => (
+    <div className="p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-lg font-semibold text-gray-800">Edit Profile</h3>
+        <button
+          onClick={() => setActiveView('main')}
+          className="text-gray-400 hover:text-gray-600"
+        >
+          ✕
+        </button>
+      </div>
+      
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+          <input
+            type="text"
+            value={editForm.name}
+            onChange={(e) => handleInputChange('name', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+          <input
+            type="email"
+            value={editForm.email}
+            onChange={(e) => handleInputChange('email', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+          <textarea
+            value={editForm.bio}
+            onChange={(e) => handleInputChange('bio', e.target.value)}
+            rows={3}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+          <input
+            type="text"
+            value={editForm.location}
+            onChange={(e) => handleInputChange('location', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Website</label>
+          <input
+            type="url"
+            value={editForm.website}
+            onChange={(e) => handleInputChange('website', e.target.value)}
+            placeholder="https://your-website.com"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          />
+        </div>
+        
+        <div className="flex space-x-3 pt-4">
+          <button
+            onClick={handleSaveProfile}
+            disabled={isLoading}
+            className="flex-1 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg font-medium hover:shadow-lg transition-all duration-200 disabled:opacity-50"
+          >
+            {isLoading ? 'Saving...' : 'Save Changes'}
+          </button>
+          <button
+            onClick={() => setActiveView('main')}
+            className="flex-1 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderSettings = () => (
+    <div className="p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-lg font-semibold text-gray-800">Settings</h3>
+        <button
+          onClick={() => setActiveView('main')}
+          className="text-gray-400 hover:text-gray-600"
+        >
+          ✕
+        </button>
+      </div>
+      
+      <div className="space-y-4">
+        <div className="flex items-center justify-between py-3 border-b border-gray-200">
+          <div>
+            <div className="font-medium text-gray-800">Dark Mode</div>
+            <div className="text-sm text-gray-600">Switch to dark theme</div>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" className="sr-only peer" />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+          </label>
+        </div>
+        
+        <div className="flex items-center justify-between py-3 border-b border-gray-200">
+          <div>
+            <div className="font-medium text-gray-800">Email Notifications</div>
+            <div className="text-sm text-gray-600">Receive course updates via email</div>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" className="sr-only peer" defaultChecked />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+          </label>
+        </div>
+        
+        <div className="flex items-center justify-between py-3 border-b border-gray-200">
+          <div>
+            <div className="font-medium text-gray-800">Auto-save Projects</div>
+            <div className="text-sm text-gray-600">Automatically save your work</div>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" className="sr-only peer" defaultChecked />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+          </label>
+        </div>
+        
+        <div className="py-3">
+          <div className="font-medium text-gray-800 mb-2">Language</div>
+          <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+            <option>English</option>
+            <option>Spanish</option>
+            <option>French</option>
+            <option>German</option>
+          </select>
+        </div>
+        
+        <div className="py-3">
+          <div className="font-medium text-gray-800 mb-2">Time Zone</div>
+          <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+            <option>UTC-8 (Pacific Time)</option>
+            <option>UTC-5 (Eastern Time)</option>
+            <option>UTC+0 (GMT)</option>
+            <option>UTC+1 (Central European Time)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCourses = () => (
+    <div className="p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-lg font-semibold text-gray-800">My Courses</h3>
+        <button
+          onClick={() => setActiveView('main')}
+          className="text-gray-400 hover:text-gray-600"
+        >
+          ✕
+        </button>
+      </div>
+      
+      <div className="space-y-4">
+        {[
+          { name: 'JavaScript Fundamentals', progress: 75, icon: '🚀', status: 'In Progress', lessons: '9/12' },
+          { name: 'React Adventures', progress: 45, icon: '⚛️', status: 'In Progress', lessons: '7/15' },
+          { name: 'CSS Magic', progress: 90, icon: '🎨', status: 'Almost Done', lessons: '9/10' },
+          { name: 'Python Playground', progress: 30, icon: '🐍', status: 'Started', lessons: '5/18' }
+        ].map((course, index) => (
+          <div key={index} className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors cursor-pointer">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center space-x-3">
+                <span className="text-xl">{course.icon}</span>
+                <div>
+                  <div className="font-medium text-gray-800">{course.name}</div>
+                  <div className="text-sm text-gray-600">{course.status} • {course.lessons} lessons</div>
+                </div>
+              </div>
+              <span className="text-sm font-medium text-purple-600">{course.progress}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${course.progress}%` }}
+              ></div>
+            </div>
+          </div>
+        ))}
+        
+        <button className="w-full py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg font-medium hover:shadow-lg transition-all duration-200 mt-4">
+          Browse More Courses
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderAchievements = () => (
+    <div className="p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-lg font-semibold text-gray-800">Achievements</h3>
+        <button
+          onClick={() => setActiveView('main')}
+          className="text-gray-400 hover:text-gray-600"
+        >
+          ✕
+        </button>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-3 mb-6">
+        {[
+          { name: 'First Code', icon: '🎯', unlocked: true, description: 'Completed your first coding lesson', date: '2 days ago' },
+          { name: 'Debug Master', icon: '🔧', unlocked: true, description: 'Fixed 10 bugs successfully', date: '1 week ago' },
+          { name: 'Creative Coder', icon: '🎨', unlocked: true, description: 'Used 5 creative templates', date: '3 days ago' },
+          { name: 'AI Assistant', icon: '🤖', unlocked: false, description: 'Asked 50 questions to AI', date: 'Locked' },
+          { name: 'Project Master', icon: '🏆', unlocked: false, description: 'Completed 10 projects', date: 'Locked' },
+          { name: 'Code Warrior', icon: '⚔️', unlocked: false, description: 'Coded for 100 hours', date: 'Locked' }
+        ].map((achievement, index) => (
+          <div 
+            key={index}
+            className={`p-4 rounded-lg text-center transition-all ${
+              achievement.unlocked 
+                ? 'bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-200' 
+                : 'bg-gray-50 border-2 border-gray-200 opacity-50'
+            }`}
+          >
+            <div className="text-3xl mb-2">{achievement.icon}</div>
+            <div className="font-medium text-gray-800 text-sm mb-1">{achievement.name}</div>
+            <div className="text-xs text-gray-600 mb-2">{achievement.description}</div>
+            <div className={`text-xs ${achievement.unlocked ? 'text-green-600' : 'text-gray-500'}`}>
+              {achievement.date}
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-4 border border-purple-200">
+        <div className="text-center">
+          <div className="font-semibold text-gray-800 mb-1">Achievement Progress</div>
+          <div className="text-sm text-gray-600 mb-3">3 of 6 achievements unlocked</div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full" style={{ width: '50%' }}></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (activeView !== 'main') {
+    return (
+      <div className="absolute top-full right-0 mt-2 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 max-h-[80vh] overflow-y-auto">
+        {activeView === 'edit-profile' && renderEditProfile()}
+        {activeView === 'settings' && renderSettings()}
+        {activeView === 'courses' && renderCourses()}
+        {activeView === 'achievements' && renderAchievements()}
+      </div>
+    );
+  }
 
   return (
     <div className="absolute top-full right-0 mt-2 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 max-h-[80vh] overflow-y-auto">
@@ -168,11 +431,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onLogout, onClose }) =>
       <div className="p-2">
         <div className="space-y-1">
           <button 
-            onClick={() => handleMenuClick('edit-profile')}
-            disabled={activeModal === 'edit-profile'}
+            onClick={() => handleViewChange('edit-profile')}
+            disabled={isLoading}
             className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-700 rounded-lg transition-colors disabled:opacity-50"
           >
-            {activeModal === 'edit-profile' ? (
+            {isLoading ? (
               <div className="w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
             ) : (
               <Edit className="w-4 h-4" />
@@ -181,11 +444,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onLogout, onClose }) =>
           </button>
 
           <button 
-            onClick={() => handleMenuClick('my-courses')}
-            disabled={activeModal === 'my-courses'}
+            onClick={() => handleViewChange('courses')}
+            disabled={isLoading}
             className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors disabled:opacity-50"
           >
-            {activeModal === 'my-courses' ? (
+            {isLoading ? (
               <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
             ) : (
               <BookOpen className="w-4 h-4" />
@@ -195,11 +458,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onLogout, onClose }) =>
           </button>
 
           <button 
-            onClick={() => handleMenuClick('achievements')}
-            disabled={activeModal === 'achievements'}
+            onClick={() => handleViewChange('achievements')}
+            disabled={isLoading}
             className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 rounded-lg transition-colors disabled:opacity-50"
           >
-            {activeModal === 'achievements' ? (
+            {isLoading ? (
               <div className="w-4 h-4 border-2 border-yellow-600 border-t-transparent rounded-full animate-spin"></div>
             ) : (
               <Trophy className="w-4 h-4" />
@@ -209,11 +472,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onLogout, onClose }) =>
           </button>
 
           <button 
-            onClick={() => handleMenuClick('settings')}
-            disabled={activeModal === 'settings'}
+            onClick={() => handleViewChange('settings')}
+            disabled={isLoading}
             className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
           >
-            {activeModal === 'settings' ? (
+            {isLoading ? (
               <div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
             ) : (
               <Settings className="w-4 h-4" />
@@ -226,11 +489,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onLogout, onClose }) =>
         <div className="border-t border-gray-200 mt-2 pt-2">
           <div className="space-y-1">
             <button 
-              onClick={() => handleMenuClick('notifications')}
-              disabled={activeModal === 'notifications'}
+              onClick={() => handleViewChange('notifications')}
+              disabled={isLoading}
               className="w-full flex items-center space-x-3 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors text-sm disabled:opacity-50"
             >
-              {activeModal === 'notifications' ? (
+              {isLoading ? (
                 <div className="w-3 h-3 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
               ) : (
                 <Bell className="w-3 h-3" />
@@ -239,11 +502,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onLogout, onClose }) =>
             </button>
 
             <button 
-              onClick={() => handleMenuClick('privacy')}
-              disabled={activeModal === 'privacy'}
+              onClick={() => handleViewChange('privacy')}
+              disabled={isLoading}
               className="w-full flex items-center space-x-3 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors text-sm disabled:opacity-50"
             >
-              {activeModal === 'privacy' ? (
+              {isLoading ? (
                 <div className="w-3 h-3 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
               ) : (
                 <Shield className="w-3 h-3" />
@@ -252,11 +515,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onLogout, onClose }) =>
             </button>
 
             <button 
-              onClick={() => handleMenuClick('help')}
-              disabled={activeModal === 'help'}
+              onClick={() => handleViewChange('help')}
+              disabled={isLoading}
               className="w-full flex items-center space-x-3 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors text-sm disabled:opacity-50"
             >
-              {activeModal === 'help' ? (
+              {isLoading ? (
                 <div className="w-3 h-3 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
               ) : (
                 <HelpCircle className="w-3 h-3" />
