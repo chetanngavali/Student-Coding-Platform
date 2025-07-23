@@ -1,9 +1,13 @@
 import React from 'react';
-import { TrendingUp, BookOpen, Code, Trophy, Clock, CheckCircle, Star, Target } from 'lucide-react';
+import { TrendingUp, BookOpen, Code, Trophy, Clock, CheckCircle, Star, Target, Play, Plus, MessageSquare } from 'lucide-react';
+import { useState } from 'react';
 
 const Dashboard: React.FC = () => {
+  const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
+
   const courses = [
     {
+      id: 1,
       title: 'JavaScript Fundamentals',
       progress: 75,
       level: 'Beginner',
@@ -12,6 +16,7 @@ const Dashboard: React.FC = () => {
       completed: 9
     },
     {
+      id: 2,
       title: 'React Adventures',
       progress: 45,
       level: 'Intermediate',
@@ -20,6 +25,7 @@ const Dashboard: React.FC = () => {
       completed: 7
     },
     {
+      id: 3,
       title: 'Python Playground',
       progress: 30,
       level: 'Beginner',
@@ -28,6 +34,7 @@ const Dashboard: React.FC = () => {
       completed: 5
     },
     {
+      id: 4,
       title: 'CSS Magic',
       progress: 90,
       level: 'Intermediate',
@@ -36,6 +43,29 @@ const Dashboard: React.FC = () => {
       completed: 9
     }
   ];
+
+  const handleContinueCourse = (courseId: number) => {
+    setSelectedCourse(courseId);
+    // Simulate course navigation
+    setTimeout(() => {
+      alert(`Starting ${courses.find(c => c.id === courseId)?.title}...`);
+      setSelectedCourse(null);
+    }, 1000);
+  };
+
+  const handleQuickAction = (action: string) => {
+    switch (action) {
+      case 'new-project':
+        alert('Opening project creator...');
+        break;
+      case 'ai-helper':
+        alert('Starting AI assistant...');
+        break;
+      case 'browse-templates':
+        alert('Opening template library...');
+        break;
+    }
+  };
 
   const achievements = [
     { name: 'First Code', icon: '🎯', unlocked: true },
@@ -126,7 +156,19 @@ const Dashboard: React.FC = () => {
                 </div>
                 
                 <button className="w-full py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg font-medium hover:shadow-lg transition-all duration-200">
-                  Continue Course
+                  <div className="flex items-center justify-center space-x-2">
+                    {selectedCourse === course.id ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Loading...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-4 h-4" />
+                        <span>Continue Course</span>
+                      </>
+                    )}
+                  </div>
                 </button>
               </div>
             ))}
@@ -191,14 +233,26 @@ const Dashboard: React.FC = () => {
               Quick Actions
             </h3>
             <div className="space-y-2">
-              <button className="w-full py-2 bg-purple-100 text-purple-700 rounded-lg font-medium hover:bg-purple-200 transition-colors">
-                Start New Project
+              <button 
+                onClick={() => handleQuickAction('new-project')}
+                className="w-full py-2 bg-purple-100 text-purple-700 rounded-lg font-medium hover:bg-purple-200 transition-colors flex items-center justify-center space-x-2"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Start New Project</span>
               </button>
-              <button className="w-full py-2 bg-blue-100 text-blue-700 rounded-lg font-medium hover:bg-blue-200 transition-colors">
-                Ask AI Helper
+              <button 
+                onClick={() => handleQuickAction('ai-helper')}
+                className="w-full py-2 bg-blue-100 text-blue-700 rounded-lg font-medium hover:bg-blue-200 transition-colors flex items-center justify-center space-x-2"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>Ask AI Helper</span>
               </button>
-              <button className="w-full py-2 bg-green-100 text-green-700 rounded-lg font-medium hover:bg-green-200 transition-colors">
-                Browse Templates
+              <button 
+                onClick={() => handleQuickAction('browse-templates')}
+                className="w-full py-2 bg-green-100 text-green-700 rounded-lg font-medium hover:bg-green-200 transition-colors flex items-center justify-center space-x-2"
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>Browse Templates</span>
               </button>
             </div>
           </div>

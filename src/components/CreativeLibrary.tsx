@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Palette, Download, Heart, Star, Search, Filter, Grid, List } from 'lucide-react';
+import { Palette, Download, Heart, Star, Search, Filter, Grid, List, Upload, Eye, Copy } from 'lucide-react';
 
 const CreativeLibrary: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchTerm, setSearchTerm] = useState('');
+  const [likedAssets, setLikedAssets] = useState<number[]>([]);
 
   const categories = [
     { id: 'all', label: 'All', count: 124 },
@@ -84,6 +85,34 @@ const CreativeLibrary: React.FC = () => {
     return matchesCategory && matchesSearch;
   });
 
+  const handleLike = (assetId: number) => {
+    setLikedAssets(prev => 
+      prev.includes(assetId) 
+        ? prev.filter(id => id !== assetId)
+        : [...prev, assetId]
+    );
+  };
+
+  const handleDownload = (asset: any) => {
+    alert(`Downloading ${asset.title}...`);
+    // Simulate download
+    setTimeout(() => {
+      alert(`${asset.title} downloaded successfully!`);
+    }, 1000);
+  };
+
+  const handleUseAsset = (asset: any) => {
+    alert(`Adding ${asset.title} to your project...`);
+  };
+
+  const handleUpload = () => {
+    alert('Opening asset upload dialog...');
+  };
+
+  const handlePreview = (asset: any) => {
+    alert(`Opening preview for ${asset.title}`);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
@@ -153,18 +182,39 @@ const CreativeLibrary: React.FC = () => {
 
       {/* Featured Section */}
       <div className="mb-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl p-6 text-white">
-        <h2 className="text-2xl font-bold mb-2">✨ Featured This Week</h2>
+                      <button 
+                        onClick={() => handleLike(asset.id)}
+                        className={`flex items-center space-x-1 hover:scale-110 transition-transform ${
+                          likedAssets.includes(asset.id) ? 'text-red-500' : 'text-gray-600'
+                        }`}
+                      >
+                        <Heart className={`w-4 h-4 ${likedAssets.includes(asset.id) ? 'fill-current' : ''}`} />
+                      </button>
         <p className="mb-4 opacity-90">Check out these trending creative assets picked by our community</p>
         <div className="grid md:grid-cols-3 gap-4">
-          {creativeAssets.slice(0, 3).map((asset) => (
+                    <button 
+                      onClick={() => handleDownload(asset)}
+                      className="flex items-center space-x-1 hover:text-blue-600 transition-colors"
+                    >
             <div key={asset.id} className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
               <div className="w-full h-20 rounded-lg mb-3" style={{ background: asset.preview }}></div>
-              <h3 className="font-semibold text-sm">{asset.title}</h3>
+                    </button>
               <div className="flex items-center justify-between mt-2">
                 <span className="text-xs opacity-75">{asset.type}</span>
-                <div className="flex items-center space-x-1 text-xs">
-                  <Heart className="w-3 h-3" />
-                  <span>{asset.likes}</span>
+                  <div className="flex items-center space-x-2">
+                    <button 
+                      onClick={() => handlePreview(asset)}
+                      className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+                    <button 
+                      onClick={() => handleUseAsset(asset)}
+                      className="px-3 py-1 bg-gradient-to-r from-purple-500 to-blue-500 text-white text-sm rounded-lg hover:shadow-lg transition-all duration-200"
+                    >
+                      Use
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -237,18 +287,39 @@ const CreativeLibrary: React.FC = () => {
                       <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
                         <span>{asset.type}</span>
                         <div className="flex items-center space-x-1">
-                          <Heart className="w-3 h-3" />
+                          <button 
+                            onClick={() => handleLike(asset.id)}
+                            className={`flex items-center space-x-1 ${
+                              likedAssets.includes(asset.id) ? 'text-red-500' : 'text-gray-600'
+                            }`}
+                          >
+                            <Heart className={`w-3 h-3 ${likedAssets.includes(asset.id) ? 'fill-current' : ''}`} />
+                          </button>
                           <span>{asset.likes}</span>
                         </div>
-                        <div className="flex items-center space-x-1">
+                        <button 
+                          onClick={() => handleDownload(asset)}
+                          className="flex items-center space-x-1 hover:text-blue-600 transition-colors"
+                        >
                           <Download className="w-3 h-3" />
                           <span>{asset.downloads}k</span>
-                        </div>
+                        </button>
                       </div>
                     </div>
-                    <button className="px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white text-sm rounded-lg hover:shadow-lg transition-all duration-200">
-                      Use
-                    </button>
+                    <div className="flex items-center space-x-2">
+                      <button 
+                        onClick={() => handlePreview(asset)}
+                        className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => handleUseAsset(asset)}
+                        className="px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white text-sm rounded-lg hover:shadow-lg transition-all duration-200"
+                      >
+                        Use
+                      </button>
+                    </div>
                   </div>
                 </div>
               </>
@@ -268,8 +339,12 @@ const CreativeLibrary: React.FC = () => {
             Created something amazing? Share it with the community and help other students learn and build incredible projects!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all duration-200">
-              Upload Asset
+            <button 
+              onClick={handleUpload}
+              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2"
+            >
+              <Upload className="w-5 h-5" />
+              <span>Upload Asset</span>
             </button>
             <button className="px-6 py-3 bg-white text-gray-700 rounded-lg font-semibold border border-gray-300 hover:border-purple-300 transition-all duration-200">
               Learn More
