@@ -181,46 +181,6 @@ const CreativeLibrary: React.FC = () => {
       </div>
 
       {/* Featured Section */}
-      <div className="mb-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl p-6 text-white">
-                      <button 
-                        onClick={() => handleLike(asset.id)}
-                        className={`flex items-center space-x-1 hover:scale-110 transition-transform ${
-                          likedAssets.includes(asset.id) ? 'text-red-500' : 'text-gray-600'
-                        }`}
-                      >
-                        <Heart className={`w-4 h-4 ${likedAssets.includes(asset.id) ? 'fill-current' : ''}`} />
-                      </button>
-        <p className="mb-4 opacity-90">Check out these trending creative assets picked by our community</p>
-        <div className="grid md:grid-cols-3 gap-4">
-                    <button 
-                      onClick={() => handleDownload(asset)}
-                      className="flex items-center space-x-1 hover:text-blue-600 transition-colors"
-                    >
-            <div key={asset.id} className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-              <div className="w-full h-20 rounded-lg mb-3" style={{ background: asset.preview }}></div>
-                    </button>
-              <div className="flex items-center justify-between mt-2">
-                <span className="text-xs opacity-75">{asset.type}</span>
-                  <div className="flex items-center space-x-2">
-                    <button 
-                      onClick={() => handlePreview(asset)}
-                      className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
-                    <button 
-                      onClick={() => handleUseAsset(asset)}
-                      className="px-3 py-1 bg-gradient-to-r from-purple-500 to-blue-500 text-white text-sm rounded-lg hover:shadow-lg transition-all duration-200"
-                    >
-                      Use
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* Assets Grid/List */}
       <div className={viewMode === 'grid' ? 'grid md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
