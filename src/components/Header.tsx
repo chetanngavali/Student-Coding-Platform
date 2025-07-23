@@ -1,14 +1,28 @@
 import React from 'react';
-import { Code2, Brain, Palette, Home, BarChart3, User, Menu, X } from 'lucide-react';
+import { Code2, Brain, Palette, Home, BarChart3, User, Menu, X, LogIn } from 'lucide-react';
 import { useState } from 'react';
+import AuthModal from './AuthModal';
+import UserProfile from './UserProfile';
 
 interface HeaderProps {
   activeSection: string;
   onNavigate: (section: 'home' | 'dashboard' | 'projects' | 'ai' | 'creative') => void;
+  user?: any;
+  onAuthSuccess?: (user: any) => void;
+  onLogout?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
+const Header: React.FC<HeaderProps> = ({ 
+  activeSection, 
+  onNavigate, 
+  user, 
+  onAuthSuccess, 
+  onLogout 
+}) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
+  const [showUserProfile, setShowUserProfile] = useState(false);
 
   const navItems = [
     { id: 'home', label: 'Home', icon: Home },
@@ -18,8 +32,28 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
     { id: 'creative', label: 'Creative', icon: Palette },
   ];
 
+  const handleAuthClick = (mode: 'signin' | 'signup') => {
+    setAuthMode(mode);
+    setShowAuthModal(true);
+  };
+
+  const handleAuthSuccess = (userData: any) => {
+    if (onAuthSuccess) {
+      onAuthSuccess(userData);
+    }
+    setShowAuthModal(false);
+  };
+
+  const handleLogout = () => {
+    if (onLogout) {
+      onLogout();
+    }
+    setShowUserProfile(false);
+  };
+
   return (
-    <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-gray-200 z-50">
+    <>
+      <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-gray-200 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-2">
@@ -61,10 +95,47 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
             </button>
           </div>
 
+          {/* Auth Section */}
           <div className="flex items-center space-x-3">
-            <button className="p-2 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:shadow-lg transition-all duration-200">
-              <User className="w-4 h-4" />
-            </button>
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserProfile(!showUserProfile)}
+                  className="flex items-center space-x-2 p-2 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:shadow-lg transition-all duration-200"
+                >
+                  <img
+                    src={user.avatar}
+                    alt={user.name}
+                    className="w-6 h-6 rounded-full"
+                  />
+                  <span className="hidden md:block text-sm font-medium">{user.name.split(' ')[0]}</span>
+                </button>
+                
+                {showUserProfile && (
+                  <UserProfile
+                    user={user}
+                    onLogout={handleLogout}
+                    onClose={() => setShowUserProfile(false)}
+                  />
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => handleAuthClick('signin')}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors"
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => handleAuthClick('signup')}
+                  className="px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg font-medium hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span>Sign Up</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -96,7 +167,25 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
           </div>
         )}
       </div>
-    </header>
+      </header>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        mode={authMode}
+        onModeChange={setAuthMode}
+        onAuthSuccess={handleAuthSuccess}
+      />
+
+      {/* Click outside to close user profile */}
+      {showUserProfile && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => setShowUserProfile(false)}
+        />
+      )}
+    </>
   );
 };
 

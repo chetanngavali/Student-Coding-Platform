@@ -1,9 +1,20 @@
 import React from 'react';
 import { TrendingUp, BookOpen, Code, Trophy, Clock, CheckCircle, Star, Target, Play, Plus, MessageSquare } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const Dashboard: React.FC = () => {
+interface DashboardProps {
+  user?: any;
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ user }) => {
   const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
+  const [userName, setUserName] = useState('Student');
+
+  useEffect(() => {
+    if (user?.name) {
+      setUserName(user.name.split(' ')[0]);
+    }
+  }, [user]);
 
   const courses = [
     {
@@ -87,7 +98,7 @@ const Dashboard: React.FC = () => {
       {/* Welcome Section */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-2">
-          Welcome back, Alex! 👋
+          Welcome back, {userName}! 👋
         </h1>
         <p className="text-gray-600">Ready to continue your coding journey?</p>
       </div>

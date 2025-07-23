@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useEffect } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Dashboard from './components/Dashboard';
@@ -9,11 +10,31 @@ import Footer from './components/Footer';
 
 function App() {
   const [activeSection, setActiveSection] = useState<'home' | 'dashboard' | 'projects' | 'ai' | 'creative'>('home');
+  const [user, setUser] = useState<any>(null);
+
+  // Load user from localStorage on app start
+  useEffect(() => {
+    const savedUser = localStorage.getItem('codecraft_user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
+
+  const handleAuthSuccess = (userData: any) => {
+    setUser(userData);
+    localStorage.setItem('codecraft_user', JSON.stringify(userData));
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem('codecraft_user');
+    setActiveSection('home');
+  };
 
   const renderSection = () => {
     switch (activeSection) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard user={user} />;
       case 'projects':
         return <ProjectWorkspace />;
       case 'ai':
@@ -27,7 +48,13 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
-      <Header activeSection={activeSection} onNavigate={setActiveSection} />
+      <Header 
+        activeSection={activeSection} 
+        onNavigate={setActiveSection}
+        user={user}
+        onAuthSuccess={handleAuthSuccess}
+        onLogout={handleLogout}
+      />
       <main className="pt-16">
         {renderSection()}
       </main>
